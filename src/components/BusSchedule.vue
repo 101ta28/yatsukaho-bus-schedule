@@ -11,7 +11,7 @@
     <!-- Building Dropdown -->
     <v-row class="mb-3" justify="center">
       <v-col cols="12" md="8" lg="6">
-        <v-select :items="allStops" label="号館" v-model="selectedStopName" outlined dense></v-select>
+        <v-select :items="allStops" label="号館選択" v-model="selectedStopName" outlined dense></v-select>
       </v-col>
     </v-row>
 
