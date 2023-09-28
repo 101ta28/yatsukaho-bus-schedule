@@ -7,6 +7,12 @@
 
 やつかほリサーチキャンパスの[公式ページ](https://www.kanazawa-it.ac.jp/about_kit/yatsukaho.html)
 
+## 注意事項
+
+**テスト段階なので完全に信頼しないでください。**
+
+Webページは[こちら](https://101ta28-yatsukaho-bus.netlify.app)
+
 ## Project setup (開発者向け)
 
 ```
@@ -70,3 +76,7 @@ pnpm lint
 # bun
 bun run lint
 ```
+
+## License
+
+The source code is licensed MIT.
