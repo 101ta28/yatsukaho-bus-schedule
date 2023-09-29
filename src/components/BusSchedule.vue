@@ -35,7 +35,9 @@
       <v-col cols="12" sm="10" md="8" lg="6">
         <!-- Departed Times Card -->
         <v-card v-if="departedTimes.length" class="mb-2">
-          <v-card-title class="blue-grey darken-1 white--text">出発済み - {{ selectedStopName }}</v-card-title>
+          <v-card-title class="blue-grey darken-1 white--text">{{ selectedStopType ===
+            "exit_only" ? "到着済み" : selectedStopType === "board_only" ? "出発済み" : "" }}- {{ selectedStopName
+  }}</v-card-title>
           <v-divider></v-divider>
           <div>
             <v-card v-for="time in departedTimes" :key="time" class="my-1">
