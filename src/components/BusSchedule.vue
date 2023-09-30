@@ -54,15 +54,26 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import data from '/src/data.json';
 
-const allDirections = Object.keys(data.schedule.weekdays.directions);
+const currentDayType = ref(getCurrentDayType());
+const allDirections = computed(() => Object.keys(data.schedule[currentDayType.value].directions));
 const currentDirectionIndex = ref(0);
-const currentDirection = computed(() => allDirections[currentDirectionIndex.value]);
-const allStops = data.schedule.weekdays.directions[currentDirection.value].stops.map(stop => stop.name);
+const currentDirection = computed(() => allDirections.value[currentDirectionIndex.value]);
+const allStops = computed(() => data.schedule[currentDayType.value].directions[currentDirection.value].stops.map(stop => stop.name));
 const selectedStopName = ref(null);
 const timesList = ref(null);
 
+function getCurrentDayType() {
+  const dayOfWeek = new Date().getDay();
+  console.log(dayOfWeek);
+  if (dayOfWeek === 6) { // Saturday
+    return "saturdays";
+  } else { // This includes both normal weekdays and Sunday.
+    return "weekdays";
+  }
+}
+
 const getTimesForStop = (stopName) => {
-  const stopData = data.schedule.weekdays.directions[currentDirection.value].stops.find(stop => stop.name === stopName);
+  const stopData = data.schedule[currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === stopName);
   if (!stopData) return [];
 
   const currentTime = new Date();
@@ -84,7 +95,7 @@ const toggleDirection = () => {
 };
 
 const selectedStopType = computed(() => {
-  const stopData = data.schedule.weekdays.directions[currentDirection.value].stops.find(stop => stop.name === selectedStopName.value);
+  const stopData = data.schedule[currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === selectedStopName.value);
   return stopData ? stopData.type : null;
 });
 
