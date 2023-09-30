@@ -55,7 +55,8 @@ import { computed, nextTick, ref, watch } from 'vue';
 import data from '/src/data.json';
 
 const currentDayType = ref(getCurrentDayType());
-const allDirections = computed(() => Object.keys(data.schedule[currentDayType.value].directions));
+const currentScheduleType = ref(getCurrentScheduleType());
+const allDirections = computed(() => Object.keys(data[currentScheduleType.value][currentDayType.value].directions));
 const currentDirectionIndex = ref(0);
 const currentDirection = computed(() => allDirections.value[currentDirectionIndex.value]);
 const allStops = computed(() => data.schedule[currentDayType.value].directions[currentDirection.value].stops.map(stop => stop.name));
@@ -72,8 +73,19 @@ function getCurrentDayType() {
   }
 }
 
+function getCurrentScheduleType() {
+  const currentDate = new Date();
+  const startDate = new Date(data.schedule.validity.start_date);
+  const endDate = new Date(data.schedule.validity.end_date);
+  if (currentDate >= startDate && currentDate <= endDate) {
+    return "schedule";
+  } else {
+    return "vacation_schedule";
+  }
+}
+
 const getTimesForStop = (stopName) => {
-  const stopData = data.schedule[currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === stopName);
+  const stopData = data[currentScheduleType.value][currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === stopName);
   if (!stopData) return [];
 
   const currentTime = new Date();
@@ -95,7 +107,7 @@ const toggleDirection = () => {
 };
 
 const selectedStopType = computed(() => {
-  const stopData = data.schedule[currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === selectedStopName.value);
+  const stopData = data[currentScheduleType.value][currentDayType.value].directions[currentDirection.value].stops.find(stop => stop.name === selectedStopName.value);
   return stopData ? stopData.type : null;
 });
 
