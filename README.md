@@ -2,16 +2,13 @@
 
 ## 目的
 
-金沢工業大学とやつかほキャンパスを繋ぐ、バスの時刻表が(めちゃくちゃ)不便なのでWebページを作りました。
-
+金沢工業大学とやつかほキャンパスを繋ぐ、バスの時刻表が(めちゃくちゃ)不便なので Web ページを作りました。
 
 やつかほリサーチキャンパスの[公式ページ](https://www.kanazawa-it.ac.jp/about_kit/yatsukaho.html)
 
 ## 注意事項
 
-**テスト段階なので完全に信頼しないでください。**
-
-Webページは[こちら](https://101ta28-yatsukaho-bus.netlify.app)
+Web ページは[こちら](https://101ta28-yatsukaho-bus.netlify.app)
 
 ## Project setup (開発者向け)
 
