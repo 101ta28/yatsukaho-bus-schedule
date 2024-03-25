@@ -90,7 +90,7 @@ const times = ref({
 
 const fetchRoutes = async () => {
   try {
-    const { data } = await axios.get('/src/schedule.json');
+    const { data } = await axios.get('schedule.json');
     routes.value = data.routes;
   } catch (error) {
     console.error("Failed to load routes data:", error);
