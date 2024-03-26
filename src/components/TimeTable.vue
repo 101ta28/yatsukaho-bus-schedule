@@ -27,13 +27,13 @@
               <v-col class="text-center">
                 <div class="text-subtitle-2 mb-2">{{ selectedStopName }}</div>
                 <div v-if="times.board_times.length > 0">
-                  <div class="text-caption mb-2">出発時間</div>
+                  <div class="text-caption mb-2">乗車のみ</div>
                   <div v-for="time in times.board_times" :key="`depart-${selectedStopName}-${time}`">
                     <v-chip class="mb-2">{{ time }}</v-chip>
                   </div>
                 </div>
                 <div v-if="times.exit_times.length > 0">
-                  <div class="text-caption mb-2">到着時間</div>
+                  <div class="text-caption mb-2">降車のみ</div>
                   <div v-for="time in times.exit_times" :key="`arrive-${selectedStopName}-${time}`">
                     <v-chip class="mb-2">{{ time }}</v-chip>
                   </div>
@@ -43,13 +43,13 @@
               <v-col v-for="stop in remainingStops" :key="stop.name" class="text-center">
                 <div class="text-subtitle-1 mb-2">{{ stop.name }}</div>
                 <div v-if="stop.board_times.length > 0">
-                  <div class="text-caption mb-2">出発時間</div>
+                  <div class="text-caption mb-2">乗車のみ</div>
                   <div v-for="time in stop.board_times" :key="`depart-${stop.name}-${time}`">
                     <v-chip class="mb-2">{{ time }}</v-chip>
                   </div>
                 </div>
                 <div v-if="stop.exit_times.length > 0">
-                  <div class="text-caption mb-2">到着時間</div>
+                  <div class="text-caption mb-2">降車のみ</div>
                   <div v-for="time in stop.exit_times" :key="`arrive-${stop.name}-${time}`">
                     <v-chip class="mb-2">{{ time }}</v-chip>
                   </div>
@@ -79,15 +79,10 @@ const selectedDate = ref(dayjs().format('YYYY-MM-DD'));
 const routes = ref([]);
 const directionIndex = ref(0);
 const selectedStopName = ref("");
-// const departureTimes = ref([]); // 選択された停留所の出発時間
-// const arrivalTimes = ref([]); // 選択された停留所の到着時間
-const remainingStops = ref([]); // その他の停留所の情報（出発時間と到着時間を含む）
+const remainingStops = ref([]);
+const times = ref({ board_times: [], exit_times: [] });
 
-const times = ref({
-  board_times: [],
-  exit_times: [],
-});
-
+// スケジュールJSONデータの取得
 const fetchRoutes = async () => {
   try {
     const { data } = await axios.get('schedule.json');
@@ -114,6 +109,13 @@ const stopNames = computed(() => {
   return selectedRoute.value ? selectedRoute.value.weekdays.stops.map(stop => stop.name) : [];
 });
 
+// 休暇期間中かどうかを確認する関数
+const isInVacationPeriod = (date, periods) => {
+  return periods.some(period =>
+    dayjs(date).isSameOrAfter(dayjs(period.start_date)) && dayjs(date).isSameOrBefore(dayjs(period.end_date))
+  );
+};
+
 const updateTimetable = () => {
   if (!routes.value.length || !selectedStopName.value) {
     times.value = { board_times: [], exit_times: [] };
@@ -122,21 +124,23 @@ const updateTimetable = () => {
   }
 
   const dayOfWeek = dayjs(selectedDate.value).day();
-  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-  const scheduleType = isWeekday ? "weekdays" : "saturdays";
+  const selectedDayType = dayOfWeek >= 1 && dayOfWeek <= 5 ? "weekdays" : "saturdays";
 
-  const selectedRoute = routes.value.find(route => route.direction === currentDirection.value);
-  if (!selectedRoute || !selectedRoute[scheduleType]) return;
+  // 休暇期間を判断
+  const selectedRouteData = routes.value.find(route => route.direction === currentDirection.value);
+  if (!selectedRouteData) return;
+  const isVacation = isInVacationPeriod(selectedDate.value, selectedRouteData.validity.vacation_periods);
+  const scheduleType = isVacation ? `vacation_${selectedDayType}` : selectedDayType;
 
   // 選択された停留所の時刻を更新
-  const selectedStopData = selectedRoute[scheduleType].stops.find(stop => stop.name === selectedStopName.value);
+  const selectedStopData = selectedRouteData[scheduleType].stops.find(stop => stop.name === selectedStopName.value);
   times.value = {
     board_times: selectedStopData ? selectedStopData.board_times || [] : [],
     exit_times: selectedStopData ? selectedStopData.exit_times || [] : [],
   };
 
   // 選択されていない停留所の情報を更新
-  remainingStops.value = selectedRoute[scheduleType].stops
+  remainingStops.value = selectedRouteData[scheduleType].stops
     .filter(stop => stop.name !== selectedStopName.value)
     .map(stop => ({
       name: stop.name,
@@ -145,7 +149,5 @@ const updateTimetable = () => {
     }));
 };
 
-// 初期化時と依存データが変更された時にタイムテーブルを更新
 watch([selectedStopName, directionIndex, selectedDate], updateTimetable, { immediate: true });
-
 </script>
